@@ -89,6 +89,8 @@ const players = [
   { name: "IxsDev", id: 1342114927 },
   { name: "Oscxrxxz", id: 5109308571 },
   { name: "Esteba5378", id: 1693365751 },
+  { name: "SombreFeelings", id: 310085956 },
+  { name: "T4RGA", id: 338436976 },
   { name: "TehMiq_Alt", id: 5341162058 }
 ];
 
