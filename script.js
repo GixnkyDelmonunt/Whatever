@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
       const res = await fetch(
-        `https://thumbnails.roblox.com/v1/users/avatar?userIds=${userIds}&size=420x420&format=Png&isCircular=false`
+        `/.netlify/functions/avatars?userIds=${userIds}`
       );
       if (!res.ok) throw new Error(`API error ${res.status}`);
 
