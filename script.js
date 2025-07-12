@@ -11,6 +11,7 @@ const players = [
   { name: "im_kashinn", id: 5341059980 },
   { name: "yeah3415", id: 2013541072 },
   { name: "y3rr9", id: 1489214711 },
+  { name: "klaser22", id: 272027870 },
   { name: "gareyco_107", id: 1022492466 },
   { name: "jeanxsnn", id: 768301086 },
   { name: "xxgran722xx", id: 1818441922 },
