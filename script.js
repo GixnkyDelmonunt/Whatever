@@ -116,7 +116,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   function showNotification(text) {
     const toast = document.createElement("div");
     toast.className = "toast";
-    toast.textContent = `📋 ${text}`;
+    toast.textContent = `${text}`;
 
     Object.assign(toast.style, {
       background: "rgba(20, 20, 20, 0.95)",
