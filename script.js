@@ -97,36 +97,58 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!grid) return;
 
   // Notification element (create once)
- const notify = document.createElement("div");
-notify.id = "toast-notify";
-notify.style.position = "fixed";
-notify.style.bottom = "30px";
-notify.style.left = "50%";
-notify.style.transform = "translateX(-50%) scale(0.95)";
-notify.style.background = "rgba(20, 20, 20, 0.9)";
-notify.style.color = "#fff";
-notify.style.padding = "12px 20px";
-notify.style.border = "1px solid #3f3f3f";
-notify.style.borderRadius = "10px";
-notify.style.boxShadow = "0 6px 20px rgba(0,0,0,0.25)";
-notify.style.fontSize = "0.9rem";
-notify.style.fontWeight = "500";
-notify.style.opacity = "0";
-notify.style.transition = "opacity 0.3s ease, transform 0.3s ease";
-notify.style.pointerEvents = "none";
-notify.style.zIndex = "9999";
-document.body.appendChild(notify);
+ // Toast container at bottom center
+const toastContainer = document.createElement("div");
+toastContainer.id = "toast-container";
+toastContainer.style.position = "fixed";
+toastContainer.style.bottom = "30px";
+toastContainer.style.left = "50%";
+toastContainer.style.transform = "translateX(-50%)";
+toastContainer.style.display = "flex";
+toastContainer.style.flexDirection = "column-reverse";
+toastContainer.style.gap = "10px";
+toastContainer.style.zIndex = "9999";
+document.body.appendChild(toastContainer);
 
 function showNotification(text) {
-  notify.textContent = `📋 ${text}`;
-  notify.style.opacity = "1";
-  notify.style.transform = "translateX(-50%) scale(1)";
-  clearTimeout(notify._timeout);
-  notify._timeout = setTimeout(() => {
-    notify.style.opacity = "0";
-    notify.style.transform = "translateX(-50%) scale(0.95)";
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.textContent = `📋 ${text}`;
+
+  // Style the individual toast
+  Object.assign(toast.style, {
+    background: "rgba(20, 20, 20, 0.95)",
+    color: "#fff",
+    padding: "10px 18px",
+    borderRadius: "10px",
+    border: "1px solid #3f3f3f",
+    boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
+    fontSize: "0.9rem",
+    fontWeight: "500",
+    opacity: "0",
+    transform: "scale(0.95)",
+    transition: "opacity 0.3s ease, transform 0.3s ease",
+    pointerEvents: "none",
+  });
+
+  toastContainer.appendChild(toast);
+
+  // Trigger animation
+  requestAnimationFrame(() => {
+    toast.style.opacity = "1";
+    toast.style.transform = "scale(1)";
+  });
+
+  // Auto-remove after 1.6s with fade-out
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    toast.style.transform = "scale(0.95)";
+    setTimeout(() => {
+      toast.remove();
+    }, 300); // match transition duration
   }, 1600);
 }
+
 
 
   // Step 1: Render cards with placeholders
