@@ -113,7 +113,7 @@ document.body.appendChild(toastContainer);
 function showNotification(text) {
   const toast = document.createElement("div");
   toast.className = "toast";
-  toast.textContent = `📋 ${text}`;
+  toast.textContent = `${text}`;
 
   // Style the individual toast
   Object.assign(toast.style, {
