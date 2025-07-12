@@ -115,7 +115,7 @@ document.body.appendChild(toastContainer);
 function showNotification(text) {
   const toast = document.createElement("div");
   toast.className = "toast";
-  toast.textContent = `📋 ${text}`;
+  toast.textContent = `${text}`;
 
   Object.assign(toast.style, {
     background: "rgba(20, 20, 20, 0.95)",
@@ -165,7 +165,7 @@ function showNotification(text) {
     // Click to copy user ID
     card.addEventListener("click", () => {
       navigator.clipboard.writeText(player.id.toString()).then(() => {
-        showNotification(`UserID ${player.id} copied to clipboard`);
+        showNotification(`UserID ${player.id} copied to clipboard.`);
       }).catch(err => {
         console.error("Failed to copy:", err);
         showNotification("Failed to copy");
