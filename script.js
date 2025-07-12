@@ -97,29 +97,37 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!grid) return;
 
   // Notification element (create once)
-  const notify = document.createElement("div");
-  notify.style.position = "fixed";
-  notify.style.bottom = "20px";
-  notify.style.left = "50%";
-  notify.style.transform = "translateX(-50%)";
-  notify.style.background = "#1a1a1a";
-  notify.style.color = "#fff";
-  notify.style.padding = "10px 18px";
-  notify.style.borderRadius = "8px";
-  notify.style.boxShadow = "0 0 10px #0005";
-  notify.style.fontSize = "0.9rem";
-  notify.style.display = "none";
-  notify.style.zIndex = "9999";
-  document.body.appendChild(notify);
+ const notify = document.createElement("div");
+notify.id = "toast-notify";
+notify.style.position = "fixed";
+notify.style.bottom = "30px";
+notify.style.left = "50%";
+notify.style.transform = "translateX(-50%) scale(0.95)";
+notify.style.background = "rgba(20, 20, 20, 0.9)";
+notify.style.color = "#fff";
+notify.style.padding = "12px 20px";
+notify.style.border = "1px solid #3f3f3f";
+notify.style.borderRadius = "10px";
+notify.style.boxShadow = "0 6px 20px rgba(0,0,0,0.25)";
+notify.style.fontSize = "0.9rem";
+notify.style.fontWeight = "500";
+notify.style.opacity = "0";
+notify.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+notify.style.pointerEvents = "none";
+notify.style.zIndex = "9999";
+document.body.appendChild(notify);
 
-  function showNotification(text) {
-    notify.textContent = `📋 ${text}`;
-    notify.style.display = "block";
-    clearTimeout(notify._timeout);
-    notify._timeout = setTimeout(() => {
-      notify.style.display = "none";
-    }, 1500);
-  }
+function showNotification(text) {
+  notify.textContent = `📋 ${text}`;
+  notify.style.opacity = "1";
+  notify.style.transform = "translateX(-50%) scale(1)";
+  clearTimeout(notify._timeout);
+  notify._timeout = setTimeout(() => {
+    notify.style.opacity = "0";
+    notify.style.transform = "translateX(-50%) scale(0.95)";
+  }, 1600);
+}
+
 
   // Step 1: Render cards with placeholders
   players.forEach((player) => {
