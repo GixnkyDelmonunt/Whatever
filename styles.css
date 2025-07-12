@@ -19,17 +19,17 @@ h1 {
 /* Avatar grid: Fixed width columns and center alignment */
 .avatar-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 180px); /* Fixed-width columns */
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 1.5rem;
-  justify-content: center; /* Center grid as a whole */
+  justify-content: center;
+  padding: 1rem; /* Add this to give space around the grid */
   width: 100%;
   max-width: 1400px;
 }
 
-/* Each avatar card */
 .avatar-card {
-  width: 180px;
-  max-width: 100%;
+  width: 100%; /* Let it fill the grid cell */
+  max-width: 180px; /* Don't exceed this width */
   background-color: #1a1a1a;
   border-radius: 1.5rem;
   padding: 1rem;
