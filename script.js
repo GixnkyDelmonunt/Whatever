@@ -94,75 +94,67 @@ const players = [
 
 document.addEventListener("DOMContentLoaded", async () => {
   const grid = document.getElementById("avatarGrid");
-  if (!grid) return;
+  const searchInput = document.getElementById("searchInput");
+  if (!grid || !searchInput) return;
 
-  // Notification element (create once)
- // Toast container at bottom center
-// Toast container at bottom center
-const toastContainer = document.createElement("div");
-toastContainer.id = "toast-container";
-toastContainer.style.position = "fixed";
-toastContainer.style.bottom = "30px";
-toastContainer.style.left = "50%";
-toastContainer.style.transform = "translateX(-50%)";
-toastContainer.style.display = "flex";
-toastContainer.style.flexDirection = "column-reverse";
-toastContainer.style.gap = "10px";
-toastContainer.style.zIndex = "9999";
-toastContainer.style.pointerEvents = "none"; // clicks pass through container
-document.body.appendChild(toastContainer);
+  // Toast notification container
+  const toastContainer = document.createElement("div");
+  toastContainer.id = "toast-container";
+  toastContainer.style.position = "fixed";
+  toastContainer.style.bottom = "30px";
+  toastContainer.style.left = "50%";
+  toastContainer.style.transform = "translateX(-50%)";
+  toastContainer.style.display = "flex";
+  toastContainer.style.flexDirection = "column-reverse";
+  toastContainer.style.gap = "10px";
+  toastContainer.style.zIndex = "9999";
+  toastContainer.style.pointerEvents = "none";
+  document.body.appendChild(toastContainer);
 
-function showNotification(text) {
-  const toast = document.createElement("div");
-  toast.className = "toast";
-  toast.textContent = `${text}`;
+  function showNotification(text) {
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.textContent = `📋 ${text}`;
 
-  Object.assign(toast.style, {
-    background: "rgba(20, 20, 20, 0.95)",
-    color: "#fff",
-    padding: "10px 18px",
-    borderRadius: "10px",
-    border: "1px solid #3f3f3f",
-    boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
-    fontSize: "0.9rem",
-    fontWeight: "500",
-    opacity: "0",
-    transform: "scale(0.95)",
-    transition: "opacity 0.3s ease, transform 0.3s ease, margin 0.3s ease",
-    marginBottom: "0px",
-    pointerEvents: "auto",
-  });
+    Object.assign(toast.style, {
+      background: "rgba(20, 20, 20, 0.95)",
+      color: "#fff",
+      padding: "10px 18px",
+      borderRadius: "10px",
+      border: "1px solid #3f3f3f",
+      boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
+      fontSize: "0.9rem",
+      fontWeight: "500",
+      opacity: "0",
+      transform: "scale(0.95)",
+      transition: "opacity 0.3s ease, transform 0.3s ease, margin 0.3s ease",
+      marginBottom: "0px",
+      pointerEvents: "auto",
+    });
 
-  toastContainer.appendChild(toast);
+    toastContainer.appendChild(toast);
 
-  // Animate in
-  requestAnimationFrame(() => {
-    toast.style.opacity = "1";
-    toast.style.transform = "scale(1)";
-    toast.style.marginBottom = "0px"; // Prevent pop-in spacing
-  });
+    requestAnimationFrame(() => {
+      toast.style.opacity = "1";
+      toast.style.transform = "scale(1)";
+      toast.style.marginBottom = "0px";
+    });
 
-  // Animate out and remove
-  setTimeout(() => {
-    toast.style.opacity = "0";
-    toast.style.transform = "scale(0.95)";
-    toast.style.marginBottom = "-20px"; // Create space pull
     setTimeout(() => {
-      toast.remove();
-    }, 300); // Matches transition
-  }, 1600);
-}
-
-
-
+      toast.style.opacity = "0";
+      toast.style.transform = "scale(0.95)";
+      toast.style.marginBottom = "-20px";
+      setTimeout(() => toast.remove(), 300);
+    }, 1600);
+  }
 
   // Step 1: Render cards with placeholders
   players.forEach((player) => {
     const card = document.createElement("div");
     card.className = "avatar-card";
     card.setAttribute("data-user-id", player.id);
+    card.setAttribute("data-username", player.name.toLowerCase());
 
-    // Click to copy user ID
     card.addEventListener("click", () => {
       navigator.clipboard.writeText(player.id.toString()).then(() => {
         showNotification(`UserID ${player.id} copied to clipboard.`);
@@ -176,7 +168,7 @@ function showNotification(text) {
     img.className = "avatar-img";
     img.src = "https://via.placeholder.com/420x420?text=Loading";
     img.alt = "Loading avatar";
-    img.setAttribute("data-user-id", player.id); // for later use
+    img.setAttribute("data-user-id", player.id);
 
     const name = document.createElement("div");
     name.className = "avatar-name";
@@ -187,7 +179,16 @@ function showNotification(text) {
     grid.appendChild(card);
   });
 
-  // Step 2: Fetch avatars in chunks
+  // Step 2: Search filtering (username only)
+  searchInput.addEventListener("input", () => {
+    const query = searchInput.value.trim().toLowerCase();
+    Array.from(grid.children).forEach((card) => {
+      const username = card.getAttribute("data-username");
+      card.style.display = username.includes(query) ? "" : "none";
+    });
+  });
+
+  // Step 3: Fetch avatars in chunks
   const chunkSize = 50;
   for (let i = 0; i < players.length; i += chunkSize) {
     const chunk = players.slice(i, i + chunkSize);
@@ -199,7 +200,6 @@ function showNotification(text) {
 
       const data = await res.json();
 
-      // Step 3: Set avatar images
       data.data.forEach((avatar) => {
         const img = document.querySelector(`img[data-user-id="${avatar.targetId}"]`);
         if (img) {
@@ -214,7 +214,6 @@ function showNotification(text) {
         }
       });
 
-      // Step 4: Log any that weren't returned
       chunk.forEach((player) => {
         const found = data.data.find(d => d.targetId === player.id);
         if (!found) {
@@ -231,3 +230,4 @@ function showNotification(text) {
     }
   }
 });
+
