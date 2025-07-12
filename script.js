@@ -96,6 +96,31 @@ document.addEventListener("DOMContentLoaded", async () => {
   const grid = document.getElementById("avatarGrid");
   if (!grid) return;
 
+  // Notification element (create once)
+  const notify = document.createElement("div");
+  notify.style.position = "fixed";
+  notify.style.bottom = "20px";
+  notify.style.left = "50%";
+  notify.style.transform = "translateX(-50%)";
+  notify.style.background = "#1a1a1a";
+  notify.style.color = "#fff";
+  notify.style.padding = "10px 18px";
+  notify.style.borderRadius = "8px";
+  notify.style.boxShadow = "0 0 10px #0005";
+  notify.style.fontSize = "0.9rem";
+  notify.style.display = "none";
+  notify.style.zIndex = "9999";
+  document.body.appendChild(notify);
+
+  function showNotification(text) {
+    notify.textContent = `📋 ${text}`;
+    notify.style.display = "block";
+    clearTimeout(notify._timeout);
+    notify._timeout = setTimeout(() => {
+      notify.style.display = "none";
+    }, 1500);
+  }
+
   // Step 1: Render cards with placeholders
   players.forEach((player) => {
     const card = document.createElement("div");
@@ -105,11 +130,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Click to copy user ID
     card.addEventListener("click", () => {
       navigator.clipboard.writeText(player.id.toString()).then(() => {
-        console.log(`Copied ID ${player.id} to clipboard`);
-        card.style.outline = "2px solid #4caf50"; // Green outline feedback
-        setTimeout(() => (card.style.outline = ""), 800);
+        showNotification(`UserID ${player.id} copied to clipboard`);
       }).catch(err => {
         console.error("Failed to copy:", err);
+        showNotification("Failed to copy");
       });
     });
 
@@ -172,4 +196,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 });
-
