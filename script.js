@@ -100,6 +100,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   players.forEach((player) => {
     const card = document.createElement("div");
     card.className = "avatar-card";
+    card.setAttribute("data-user-id", player.id);
+
+    // Click to copy user ID
+    card.addEventListener("click", () => {
+      navigator.clipboard.writeText(player.id.toString()).then(() => {
+        console.log(`Copied ID ${player.id} to clipboard`);
+        card.style.outline = "2px solid #4caf50"; // Green outline feedback
+        setTimeout(() => (card.style.outline = ""), 800);
+      }).catch(err => {
+        console.error("Failed to copy:", err);
+      });
+    });
 
     const img = document.createElement("img");
     img.className = "avatar-img";
@@ -123,9 +135,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const userIds = chunk.map(p => p.id).join(",");
 
     try {
-      const res = await fetch(
-        `/.netlify/functions/avatars?userIds=${userIds}`
-      );
+      const res = await fetch(`/.netlify/functions/avatars?userIds=${userIds}`);
       if (!res.ok) throw new Error(`API error ${res.status}`);
 
       const data = await res.json();
@@ -162,3 +172,4 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 });
+
