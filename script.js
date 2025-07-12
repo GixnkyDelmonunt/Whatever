@@ -98,6 +98,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Notification element (create once)
  // Toast container at bottom center
+// Toast container at bottom center
 const toastContainer = document.createElement("div");
 toastContainer.id = "toast-container";
 toastContainer.style.position = "fixed";
@@ -108,14 +109,14 @@ toastContainer.style.display = "flex";
 toastContainer.style.flexDirection = "column-reverse";
 toastContainer.style.gap = "10px";
 toastContainer.style.zIndex = "9999";
+toastContainer.style.pointerEvents = "none"; // clicks pass through container
 document.body.appendChild(toastContainer);
 
 function showNotification(text) {
   const toast = document.createElement("div");
   toast.className = "toast";
-  toast.textContent = `${text}`;
+  toast.textContent = `📋 ${text}`;
 
-  // Style the individual toast
   Object.assign(toast.style, {
     background: "rgba(20, 20, 20, 0.95)",
     color: "#fff",
@@ -127,27 +128,31 @@ function showNotification(text) {
     fontWeight: "500",
     opacity: "0",
     transform: "scale(0.95)",
-    transition: "opacity 0.3s ease, transform 0.3s ease",
-    pointerEvents: "none",
+    transition: "opacity 0.3s ease, transform 0.3s ease, margin 0.3s ease",
+    marginBottom: "0px",
+    pointerEvents: "auto",
   });
 
   toastContainer.appendChild(toast);
 
-  // Trigger animation
+  // Animate in
   requestAnimationFrame(() => {
     toast.style.opacity = "1";
     toast.style.transform = "scale(1)";
+    toast.style.marginBottom = "0px"; // Prevent pop-in spacing
   });
 
-  // Auto-remove after 1.6s with fade-out
+  // Animate out and remove
   setTimeout(() => {
     toast.style.opacity = "0";
     toast.style.transform = "scale(0.95)";
+    toast.style.marginBottom = "-20px"; // Create space pull
     setTimeout(() => {
       toast.remove();
-    }, 300); // match transition duration
+    }, 300); // Matches transition
   }, 1600);
 }
+
 
 
 
