@@ -12,6 +12,8 @@ const players = [
   { name: "yeah3415", id: 2013541072 },
   { name: "daxwerDelmonunt", id: 1371366812 },
   { name: "9kdeadsouls", id: 1690242112 },
+  { name: "KungFuPandaKrew", id: 7531100443 },
+  { name: "rankrko", id: 8733019128 },
   { name: "y3rr9", id: 1489214711 },
   { name: "Alxxzz1", id: 8364173166 },
   { name: "klaser22", id: 272027870 },
