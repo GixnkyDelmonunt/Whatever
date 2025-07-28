@@ -23,6 +23,7 @@ const players = [
   { name: "xxgran722xx", id: 1818441922 },
   { name: "Triippyzz", id: 138219381 },
   { name: "Ovlle", id: 2253595195 },
+  { name: "7X_D2", id: 4558287823 },
   { name: "dxrftblud", id: 7877661694 },
   { name: "Progam3rlons", id: 2546465432 },
   { name: "Progam3rlons", id: 2546465432 },
