@@ -225,46 +225,80 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // Step 3: Fetch avatars in chunks
-  const chunkSize = 50;
+  // Step 3: Fetch avatars in chunks with improved error handling, retries, and delays
+  const chunkSize = 25; // Reduced from 50 for better reliability
+  const maxRetries = 2; // Retry failed fetches up to 2 times
+
   for (let i = 0; i < players.length; i += chunkSize) {
     const chunk = players.slice(i, i + chunkSize);
     const userIds = chunk.map(p => p.id).join(",");
 
-    try {
-      const res = await fetch(`/.netlify/functions/avatars?userIds=${userIds}`);
-      if (!res.ok) throw new Error(`API error ${res.status}`);
+    let attempt = 0;
+    let success = false;
 
-      const data = await res.json();
+    while (attempt <= maxRetries && !success) {
+      try {
+        const res = await fetch(`/.netlify/functions/avatars?userIds=${userIds}`);
+        if (!res.ok) throw new Error(`API error ${res.status}`);
 
-      data.data.forEach((avatar) => {
-        const img = document.querySelector(`img[data-user-id="${avatar.targetId}"]`);
-        if (img) {
-          img.crossOrigin = "anonymous";
-          img.src = avatar.imageUrl || "https://via.placeholder.com/420x420?text=No+Avatar";
-          img.alt = avatar.imageUrl ? "" : "No avatar";
-          img.onerror = () => {
-            console.warn("Image failed to load:", avatar.imageUrl);
-            img.src = "https://via.placeholder.com/420x420?text=Failed";
-            img.alt = "Avatar failed to load";
-          };
+        const data = await res.json();
+        success = true;
+
+        // Update images for this chunk only
+        data.data.forEach((avatar) => {
+          const img = document.querySelector(`img[data-user-id="${avatar.targetId}"]`);
+          if (img) {
+            img.crossOrigin = "anonymous";
+            img.src = avatar.imageUrl || "https://via.placeholder.com/420x420?text=No+Avatar";
+            img.alt = avatar.imageUrl ? `${avatar.targetId}'s avatar` : "No avatar available";
+            img.onerror = () => {
+              console.warn("Image failed to load:", avatar.imageUrl);
+              img.src = "https://via.placeholder.com/420x420?text=Failed+to+Load";
+              img.alt = "Avatar failed to load";
+              // Optional: Retry just this image after a delay
+              setTimeout(() => {
+                if (avatar.imageUrl) img.src = avatar.imageUrl;
+              }, 2000); // Retry after 2s
+            };
+          }
+        });
+
+        // Handle missing avatars for this chunk
+        chunk.forEach((player) => {
+          const found = data.data.find(d => d.targetId === player.id);
+          if (!found) {
+            console.warn(`Missing avatar for: ${player.name} (ID: ${player.id})`);
+            // Set a specific placeholder for missing ones
+            const img = document.querySelector(`img[data-user-id="${player.id}"]`);
+            if (img) {
+              img.src = "https://via.placeholder.com/420x420?text=No+Data";
+              img.alt = "No avatar data available";
+            }
+          }
+        });
+
+      } catch (err) {
+        attempt++;
+        console.error(`Failed to fetch avatars (attempt ${attempt}):`, err);
+        if (attempt > maxRetries) {
+          // After max retries, set placeholders for this chunk only
+          chunk.forEach((player) => {
+            const img = document.querySelector(`img[data-user-id="${player.id}"]`);
+            if (img) {
+              img.src = "https://via.placeholder.com/420x420?text=Error+Loading";
+              img.alt = "Error loading avatar";
+            }
+          });
+        } else {
+          // Wait before retrying (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
         }
-      });
+      }
+    }
 
-      chunk.forEach((player) => {
-        const found = data.data.find(d => d.targetId === player.id);
-        if (!found) {
-          console.warn("Missing avatar for:", player.name, `(ID: ${player.id})`);
-        }
-      });
-
-    } catch (err) {
-      console.error("Failed to fetch avatars:", err);
-      document.querySelectorAll(".avatar-img").forEach(img => {
-        img.src = "https://via.placeholder.com/420x420?text=Error";
-        img.alt = "Error loading avatar";
-      });
+    // Add a small delay between chunks to avoid rate limits
+    if (i + chunkSize < players.length) {
+      await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay
     }
   }
 });
-
