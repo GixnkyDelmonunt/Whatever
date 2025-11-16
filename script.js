@@ -26,7 +26,6 @@ const players = [
   { name: "7X_D2", id: 4558287823 },
   { name: "dxrftblud", id: 7877661694 },
   { name: "Progam3rlons", id: 2546465432 },
-  { name: "Progam3rlons", id: 2546465432 },
   { name: "lasardina4328sardina", id: 1322652918 },
   { name: "ibx18k", id: 5549459192 },
   { name: "Yarapowerr", id: 189720070 },
