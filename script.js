@@ -306,4 +306,64 @@ document.addEventListener("DOMContentLoaded", async () => {
       await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay
     }
   }
+// --- Live Site Update Timestamp Component ---
+// Replace this string with your actual last edit date/time whenever you update the site.
+const LAST_EDITED_TIMESTAMP = "2026-06-02T23:44:00Z"; 
+
+function updateRelativeTime() {
+  const updateTextElem = document.getElementById("update-text");
+  if (!updateTextElem) return;
+
+  const lastEdited = new Date(LAST_EDITED_TIMESTAMP);
+  const now = new Date();
+  const secondsPast = Math.floor((now.getTime() - lastEdited.getTime()) / 1000);
+
+  // If the server/client clock is slightly out of sync or it was just deployed
+  if (secondsPast < 5) {
+    updateTextElem.textContent = "Updated just now";
+    return;
+  }
+  if (secondsPast < 60) {
+    updateTextElem.textContent = `Updated ${secondsPast} seconds ago`;
+    return;
+  }
+
+  const minutesPast = Math.floor(secondsPast / 60);
+  if (minutesPast < 60) {
+    updateTextElem.textContent = `Updated ${minutesPast} ${minutesPast === 1 ? 'minute' : 'minutes'} ago`;
+    return;
+  }
+
+  const hoursPast = Math.floor(minutesPast / 60);
+  if (hoursPast < 24) {
+    updateTextElem.textContent = `Updated ${hoursPast} ${hoursPast === 1 ? 'hour' : 'hours'} ago`;
+    return;
+  }
+
+  const daysPast = Math.floor(hoursPast / 24);
+  if (daysPast < 7) {
+    updateTextElem.textContent = `Updated ${daysPast} ${daysPast === 1 ? 'day' : 'days'} ago`;
+    return;
+  }
+
+  const weeksPast = Math.floor(daysPast / 7);
+  if (daysPast < 30) {
+    updateTextElem.textContent = `Updated ${weeksPast} ${weeksPast === 1 ? 'week' : 'weeks'} ago`;
+    return;
+  }
+
+  const monthsPast = Math.floor(daysPast / 30.43);
+  if (monthsPast < 12) {
+    updateTextElem.textContent = `Updated ${monthsPast} ${monthsPast === 1 ? 'month' : 'months'} ago`;
+    return;
+  }
+
+  const yearsPast = Math.floor(daysPast / 365.25);
+  updateTextElem.textContent = `Updated ${yearsPast} ${yearsPast === 1 ? 'year' : 'years'} ago`;
+}
+
+// Run immediately on page load, then update text context every 10 seconds automatically
+document.addEventListener("DOMContentLoaded", () => {
+  updateRelativeTime();
+  setInterval(updateRelativeTime, 10000);
 });
