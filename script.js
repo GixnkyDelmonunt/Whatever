@@ -75,6 +75,7 @@ const players = [
   { name: "NothingToRemind", id: 3694688783 },
   { name: "1qALATORRE", id: 1397707621 },
   { name: "JESUS_ALATORRE17", id: 7662297431 },
+  { name: "JESUS_ALATORREE2OO7", id: 7658664037 },
   { name: "JESUS_ALAT0RRE2006", id: 4674599896 },
   { name: "Deepsnakerequest", id: 7617279913 },
   { name: "HOKXXEASON", id: 4774480698 },
@@ -229,26 +230,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // Helper function to flag account as explicitly Deleted
-  function markAsDeleted(userId) {
-    const card = document.querySelector(`.avatar-card[data-user-id="${userId}"]`);
-    if (card) {
-      const nameElement = card.querySelector('.avatar-name');
-      if (nameElement && !nameElement.textContent.includes("(Deleted)")) {
-        nameElement.textContent += " (Deleted)";
-        nameElement.style.color = "#ff4d4d"; // Red color indicator
-      }
-      const img = card.querySelector('.avatar-img');
-      if (img) {
-        img.src = "https://via.placeholder.com/420x420?text=X";
-        img.alt = "Account Terminated or Deleted";
-      }
-    }
-  }
-
-  // Step 3: Fetch avatars in chunks with network retries and data logic
-  const chunkSize = 25; 
-  const maxRetries = 2; 
+  // Step 3: Fetch avatars in chunks with improved error handling, retries, and delays
+  const chunkSize = 25; // Reduced from 50 for better reliability
+  const maxRetries = 2; // Retry failed fetches up to 2 times
 
   for (let i = 0; i < players.length; i += chunkSize) {
     const chunk = players.slice(i, i + chunkSize);
@@ -265,45 +249,64 @@ document.addEventListener("DOMContentLoaded", async () => {
         const data = await res.json();
         success = true;
 
-        // Update images for this chunk
+        // Update images for this chunk only
+// Update images for this chunk only
         data.data.forEach((avatar) => {
           const img = document.querySelector(`img[data-user-id="${avatar.targetId}"]`);
+          const card = document.querySelector(`.avatar-card[data-user-id="${avatar.targetId}"]`);
+          const nameElement = card ? card.querySelector('.avatar-name') : null;
           
           if (img) {
             img.crossOrigin = "anonymous";
             
-            // LOGIC 1: Check if Roblox states account has avatar error/remediation (Deleted account)
+            // Check if Roblox explicitly marks the avatar state as missing/error/banned
             if (!avatar.imageUrl || avatar.state === "Remediation" || avatar.state === "Error") {
-              markAsDeleted(avatar.targetId);
+              img.src = "https://via.placeholder.com/420x420?text=X";
+              img.alt = "Account Unavailable";
+              if (nameElement && !nameElement.textContent.includes("(Deleted)")) {
+                nameElement.textContent += " (Deleted)";
+                nameElement.style.color = "#ff4d4d"; // Turn text subtle red
+              }
               return;
             }
 
             img.src = avatar.imageUrl;
             img.alt = `${avatar.targetId}'s avatar`;
             
-            // LOGIC 2: Retry mechanism if image breaks loading during runtime
-            let imageRetryAttempts = 0;
+            // Image fallback error handler if the image URL itself fails to load
+            let imgRetries = 0;
             img.onerror = () => {
-              if (imageRetryAttempts < 3) {
-                imageRetryAttempts++;
-                console.warn(`Retrying broken image asset load (${imageRetryAttempts}/3): ${avatar.imageUrl}`);
+              if (imgRetries < 3) {
+                imgRetries++;
+                console.warn(`Image failed to load, retrying (${imgRetries}/3):`, avatar.imageUrl);
+                // Retry loading the image after a brief delay
                 setTimeout(() => {
-                  // Apply unique timestamp parameters to break broken local cache blocks
-                  img.src = `${avatar.imageUrl}&t=${new Date().getTime()}`;
+                  img.src = `${avatar.imageUrl}?t=${new Date().getTime()}`; // Cache busting query param
                 }, 2000);
               } else {
-                // If it fails permanently even after asset retry loops, label it as empty/deleted configurations
-                markAsDeleted(avatar.targetId);
+                // If it fails completely after 3 individual retries
+                img.src = "https://via.placeholder.com/420x420?text=X";
+                img.alt = "Avatar failed to load";
+                if (nameElement && !nameElement.textContent.includes("(Deleted)")) {
+                  nameElement.textContent += " (Deleted)";
+                  nameElement.style.color = "#ff4d4d";
+                }
               }
             };
           }
         });
 
-        // Handle missing parameters from target arrays
+        // Handle missing avatars for this chunk
         chunk.forEach((player) => {
           const found = data.data.find(d => d.targetId === player.id);
           if (!found) {
-            markAsDeleted(player.id);
+            console.warn(`Missing avatar for: ${player.name} (ID: ${player.id})`);
+            // Set a specific placeholder for missing ones
+            const img = document.querySelector(`img[data-user-id="${player.id}"]`);
+            if (img) {
+              img.src = "https://via.placeholder.com/420x420?text=No+Data";
+              img.alt = "No avatar data available";
+            }
           }
         });
 
@@ -311,22 +314,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         attempt++;
         console.error(`Failed to fetch avatars (attempt ${attempt}):`, err);
         if (attempt > maxRetries) {
+          // After max retries, set placeholders for this chunk only
           chunk.forEach((player) => {
-            // Keep the general error text clean if connection fails completely
             const img = document.querySelector(`img[data-user-id="${player.id}"]`);
-            if (img && !img.src.includes("?text=X")) {
+            if (img) {
               img.src = "https://via.placeholder.com/420x420?text=Error+Loading";
-              img.alt = "Network error loading avatar";
+              img.alt = "Error loading avatar";
             }
           });
         } else {
+          // Wait before retrying (exponential backoff)
           await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
         }
       }
     }
 
+    // Add a small delay between chunks to avoid rate limits
     if (i + chunkSize < players.length) {
-      await new Promise(resolve => setTimeout(resolve, 500)); 
+      await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay
     }
   }
 });
