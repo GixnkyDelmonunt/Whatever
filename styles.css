@@ -93,3 +93,33 @@ h1 {
 #searchInput:focus::placeholder {
   opacity: 0.5;
 }
+
+/* Bottom-left Update Indicator */
+.update-indicator {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background-color: rgba(26, 26, 26, 0.85); /* Matches .avatar-card theme with opacity */
+  backdrop-filter: blur(8px);
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #888;
+  font-family: 'Segoe UI', sans-serif;
+  z-index: 10000;
+  pointer-events: none; /* Allows clicks to pass through if overlapping something */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* Subtle breathing green dot showing live site activity */
+.indicator-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #4caf50;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #4caf50aa;
+}
