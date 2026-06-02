@@ -129,8 +129,8 @@ const players = [
   { name: "UN55029572", id: 409772658 },
   { name: "SombreFeelings", id: 310085956 },
   { name: "T4RGA", id: 338436976 },
-  { name: "TehMiq_Alt", id: 5341162058 }
-  { name: "shiva2d4rk", id: 893718308 }
+  { name: "TehMiq_Alt", id: 5341162058 },
+  { name: "shiva2d4rk", id: 893718308 },
   { name: "jalenhurts", id: 8263614717 }
 ];
 
