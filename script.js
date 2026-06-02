@@ -130,6 +130,8 @@ const players = [
   { name: "SombreFeelings", id: 310085956 },
   { name: "T4RGA", id: 338436976 },
   { name: "TehMiq_Alt", id: 5341162058 }
+  { name: "shiva2d4rk", id: 893718308 }
+  { name: "jalenhurts", id: 8263614717 }
 ];
 
 document.addEventListener("DOMContentLoaded", async () => {
