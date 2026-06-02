@@ -306,8 +306,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay
     }
   }
-// --- Live Site Update Timestamp Component ---
-// Replace this string with your actual last edit date/time whenever you update the site.
+});
+
 const LAST_EDITED_TIMESTAMP = "2026-06-02T23:44:00Z"; 
 
 function updateRelativeTime() {
@@ -318,7 +318,6 @@ function updateRelativeTime() {
   const now = new Date();
   const secondsPast = Math.floor((now.getTime() - lastEdited.getTime()) / 1000);
 
-  // If the server/client clock is slightly out of sync or it was just deployed
   if (secondsPast < 5) {
     updateTextElem.textContent = "Updated just now";
     return;
@@ -361,9 +360,3 @@ function updateRelativeTime() {
   const yearsPast = Math.floor(daysPast / 365.25);
   updateTextElem.textContent = `Updated ${yearsPast} ${yearsPast === 1 ? 'year' : 'years'} ago`;
 }
-
-// Run immediately on page load, then update text context every 10 seconds automatically
-document.addEventListener("DOMContentLoaded", () => {
-  updateRelativeTime();
-  setInterval(updateRelativeTime, 10000);
-});
