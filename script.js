@@ -250,20 +250,48 @@ document.addEventListener("DOMContentLoaded", async () => {
         success = true;
 
         // Update images for this chunk only
+// Update images for this chunk only
         data.data.forEach((avatar) => {
           const img = document.querySelector(`img[data-user-id="${avatar.targetId}"]`);
+          const card = document.querySelector(`.avatar-card[data-user-id="${avatar.targetId}"]`);
+          const nameElement = card ? card.querySelector('.avatar-name') : null;
+          
           if (img) {
             img.crossOrigin = "anonymous";
-            img.src = avatar.imageUrl || "https://via.placeholder.com/420x420?text=No+Avatar";
-            img.alt = avatar.imageUrl ? `${avatar.targetId}'s avatar` : "No avatar available";
+            
+            // Check if Roblox explicitly marks the avatar state as missing/error/banned
+            if (!avatar.imageUrl || avatar.state === "Remediation" || avatar.state === "Error") {
+              img.src = "https://via.placeholder.com/420x420?text=X";
+              img.alt = "Account Unavailable";
+              if (nameElement && !nameElement.textContent.includes("(Deleted)")) {
+                nameElement.textContent += " (Deleted)";
+                nameElement.style.color = "#ff4d4d"; // Turn text subtle red
+              }
+              return;
+            }
+
+            img.src = avatar.imageUrl;
+            img.alt = `${avatar.targetId}'s avatar`;
+            
+            // Image fallback error handler if the image URL itself fails to load
+            let imgRetries = 0;
             img.onerror = () => {
-              console.warn("Image failed to load:", avatar.imageUrl);
-              img.src = "https://via.placeholder.com/420x420?text=Failed+to+Load";
-              img.alt = "Avatar failed to load";
-              // Optional: Retry just this image after a delay
-              setTimeout(() => {
-                if (avatar.imageUrl) img.src = avatar.imageUrl;
-              }, 2000); // Retry after 2s
+              if (imgRetries < 3) {
+                imgRetries++;
+                console.warn(`Image failed to load, retrying (${imgRetries}/3):`, avatar.imageUrl);
+                // Retry loading the image after a brief delay
+                setTimeout(() => {
+                  img.src = `${avatar.imageUrl}?t=${new Date().getTime()}`; // Cache busting query param
+                }, 2000);
+              } else {
+                // If it fails completely after 3 individual retries
+                img.src = "https://via.placeholder.com/420x420?text=X";
+                img.alt = "Avatar failed to load";
+                if (nameElement && !nameElement.textContent.includes("(Deleted)")) {
+                  nameElement.textContent += " (Deleted)";
+                  nameElement.style.color = "#ff4d4d";
+                }
+              }
             };
           }
         });
