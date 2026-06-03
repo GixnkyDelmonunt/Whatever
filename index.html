@@ -9,7 +9,6 @@
 <body>
   <h1>Jaux's and Max's Hitlist</h1>
   
-  <!-- Search bar -->
   <input
     type="text"
     id="searchInput"
@@ -19,6 +18,15 @@
   />
 
   <div class="avatar-grid" id="avatarGrid"></div>
+
+  <div id="adminModal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:#1a1a1a; padding:20px; border-radius:10px; border: 1px solid #333; z-index:1000;">
+    <h3 style="color:white; margin-top:0;">Add Global Avatar</h3>
+    <input id="passInput" type="password" placeholder="Password" style="display:block; margin-bottom:10px; width:200px; padding: 5px;">
+    <input id="nameInput" type="text" placeholder="Username" style="display:block; margin-bottom:10px; width:200px; padding: 5px;">
+    <input id="idInput" type="number" placeholder="Roblox ID" style="display:block; margin-bottom:10px; width:200px; padding: 5px;">
+    <button onclick="addPlayer()" style="cursor:pointer; width: 100%; padding: 8px;">Add to Hitlist</button>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
