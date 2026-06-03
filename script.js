@@ -90,12 +90,19 @@ window.addPlayer = async () => {
     body: JSON.stringify({ password, name, roblox_id })
   });
 
+  const alertBox = document.getElementById('customAlert');
+  const alertText = document.getElementById('alertMessage');
+
   if (res.status === 409) {
-    alert('Error: This ID already exists in the hitlist.');
+    alertText.innerText = 'Error: This ID already exists in the hitlist.';
+    alertBox.style.display = 'flex';
   } else if (res.ok) {
-    alert('Success!');
-    location.reload();
+    alertText.innerText = 'Success!';
+    alertBox.style.display = 'flex';
+    // Refresh page after showing the success popup
+    setTimeout(() => { location.reload(); }, 2000);
   } else {
-    alert('Unauthorized or Error');
+    alertText.innerText = 'Unauthorized or Error';
+    alertBox.style.display = 'flex';
   }
 };
