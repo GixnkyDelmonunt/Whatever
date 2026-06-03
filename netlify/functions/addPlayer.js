@@ -1,7 +1,6 @@
 // netlify/functions/addPlayer.js
 const { createClient } = require('@supabase/supabase-js');
 
-// Use environment variables instead of hardcoding keys
 const supabase = createClient(
   process.env.SUPABASE_URL, 
   process.env.SUPABASE_KEY
@@ -12,9 +11,19 @@ exports.handler = async (event) => {
 
   const { password, name, roblox_id } = JSON.parse(event.body);
 
-  // Securely check password against environment variable
   if (password !== process.env.ADMIN_PASSWORD) {
     return { statusCode: 403, body: "Unauthorized" };
+  }
+
+  // Check if ID already exists
+  const { data: existingPlayer } = await supabase
+    .from('players')
+    .select('roblox_id')
+    .eq('roblox_id', roblox_id)
+    .maybeSingle();
+
+  if (existingPlayer) {
+    return { statusCode: 409, body: "ID already exists" };
   }
 
   const { data, error } = await supabase
