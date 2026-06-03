@@ -17,25 +17,28 @@
       autocomplete="off"
       aria-label="Search avatars by username"
     />
-    <button id="openModalBtn" aria-label="Add custom avatar" title="Add Avatar">+</button>
   </div>
 
   <div class="avatar-grid" id="avatarGrid"></div>
 
   <div class="modal-overlay" id="avatarModal">
     <div class="modal-content">
-      <h2>Add New Avatar</h2>
+      <h2>Secret Admin Panel</h2>
       <div class="form-group">
-        <label for="modalUsername">Username</label>
+        <label for="modalPassword">Admin Password</label>
+        <input type="password" id="modalPassword" placeholder="Enter key..." autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label for="modalUsername">Username to Add</label>
         <input type="text" id="modalUsername" placeholder="e.g., GuestPlayer" autocomplete="off">
       </div>
       <div class="form-group">
-        <label for="modalID">User ID</label>
+        <label for="modalID">User ID to Add</label>
         <input type="text" id="modalID" placeholder="e.g., 123456789" autocomplete="off">
       </div>
       <div class="modal-actions">
         <button id="cancelModalBtn" class="btn-secondary">Cancel</button>
-        <button id="submitAvatarBtn" class="btn-primary">Add</button>
+        <button id="submitAvatarBtn" class="btn-primary">Add Globally</button>
       </div>
     </div>
   </div>
