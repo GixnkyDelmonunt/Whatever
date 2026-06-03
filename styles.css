@@ -46,12 +46,13 @@ h1 {
   border-color: #3f3f3f;
 }
 
-/* Avatar image */
+/* Update this in styles.css */
 .avatar-img {
   width: 100%;
   border-radius: 1rem;
-  background-color: #000;
+  background-color: transparent; /* Changed from #000 to transparent */
   object-fit: cover;
+  display: block; /* Added to remove bottom spacing issues */
 }
 
 /* Username below avatar */
