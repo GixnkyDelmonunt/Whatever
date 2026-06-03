@@ -139,6 +139,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const searchInput = document.getElementById("searchInput");
   if (!grid || !searchInput) return;
 
+  // Modal elements
+  const avatarModal = document.getElementById("avatarModal");
+  const openModalBtn = document.getElementById("openModalBtn");
+  const cancelModalBtn = document.getElementById("cancelModalBtn");
+  const submitAvatarBtn = document.getElementById("submitAvatarBtn");
+  const modalUsername = document.getElementById("modalUsername");
+  const modalID = document.getElementById("modalID");
+
   // Toast notification container
   const toastContainer = document.createElement("div");
   toastContainer.id = "toast-container";
@@ -190,8 +198,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, 1600);
   }
 
-  // Step 1: Render cards with placeholders
-  players.forEach((player) => {
+  // Card Creator Function (Re-usable code snippet)
+  function createPlayerCard(player) {
     const card = document.createElement("div");
     card.className = "avatar-card";
     card.setAttribute("data-user-id", player.id);
@@ -219,6 +227,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     card.appendChild(img);
     card.appendChild(name);
     grid.appendChild(card);
+    return img;
+  }
+
+  // Dynamic Individual Avatar Fetch Handler
+  async function fetchSingleAvatar(id, imgElement) {
+    try {
+      const res = await fetch(`/.netlify/functions/avatars?userIds=${id}`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      const match = data.data.find(d => d.targetId == id);
+      if (match && match.imageUrl) {
+        imgElement.crossOrigin = "anonymous";
+        imgElement.src = match.imageUrl;
+        imgElement.alt = `${id}'s avatar`;
+      } else {
+        imgElement.src = "https://via.placeholder.com/420x420?text=No+Data";
+      }
+    } catch {
+      imgElement.src = "https://via.placeholder.com/420x420?text=Error";
+    }
+  }
+
+  // Step 1: Render default list cards with placeholders
+  players.forEach((player) => {
+    createPlayerCard(player);
   });
 
   // Step 2: Search filtering (username only)
@@ -230,9 +263,52 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // Step 3: Fetch avatars in chunks with improved error handling, retries, and delays
-  const chunkSize = 25; // Reduced from 50 for better reliability
-  const maxRetries = 2; // Retry failed fetches up to 2 times
+  // Modal Visibility Interactions
+  openModalBtn.addEventListener("click", () => {
+    avatarModal.classList.add("active");
+    modalUsername.focus();
+  });
+
+  const closeModal = () => {
+    avatarModal.classList.remove("active");
+    modalUsername.value = "";
+    modalID.value = "";
+  };
+
+  cancelModalBtn.addEventListener("click", closeModal);
+  avatarModal.addEventListener("click", (e) => {
+    if (e.target === avatarModal) closeModal();
+  });
+
+  // Click handler to append a custom user to the collection
+  submitAvatarBtn.addEventListener("click", async () => {
+    const nameInput = modalUsername.value.trim();
+    const idInput = modalID.value.trim();
+
+    if (!nameInput || !idInput) {
+      showNotification("Please enter both Username and ID.");
+      return;
+    }
+
+    const parsedId = parseInt(idInput, 10);
+    if (isNaN(parsedId)) {
+      showNotification("ID must be a numeric value.");
+      return;
+    }
+
+    const newPlayer = { name: nameInput, id: parsedId };
+    
+    // Generate and fetch live data
+    const imgEl = createPlayerCard(newPlayer);
+    closeModal();
+    showNotification(`Added ${nameInput}! Loading avatar...`);
+    
+    await fetchSingleAvatar(parsedId, imgEl);
+  });
+
+  // Step 3: Fetch original avatars in chunks
+  const chunkSize = 25;
+  const maxRetries = 2;
 
   for (let i = 0; i < players.length; i += chunkSize) {
     const chunk = players.slice(i, i + chunkSize);
@@ -249,61 +325,38 @@ document.addEventListener("DOMContentLoaded", async () => {
         const data = await res.json();
         success = true;
 
-        // Update images for this chunk only
         data.data.forEach((avatar) => {
           const img = document.querySelector(`img[data-user-id="${avatar.targetId}"]`);
           if (img) {
             img.crossOrigin = "anonymous";
             img.src = avatar.imageUrl || "https://via.placeholder.com/420x420?text=No+Avatar";
             img.alt = avatar.imageUrl ? `${avatar.targetId}'s avatar` : "No avatar available";
-            img.onerror = () => {
-              console.warn("Image failed to load:", avatar.imageUrl);
-              img.src = "https://via.placeholder.com/420x420?text=Failed+to+Load";
-              img.alt = "Avatar failed to load";
-              // Optional: Retry just this image after a delay
-              setTimeout(() => {
-                if (avatar.imageUrl) img.src = avatar.imageUrl;
-              }, 2000); // Retry after 2s
-            };
           }
         });
 
-        // Handle missing avatars for this chunk
         chunk.forEach((player) => {
           const found = data.data.find(d => d.targetId === player.id);
           if (!found) {
-            console.warn(`Missing avatar for: ${player.name} (ID: ${player.id})`);
-            // Set a specific placeholder for missing ones
             const img = document.querySelector(`img[data-user-id="${player.id}"]`);
-            if (img) {
-              img.src = "https://via.placeholder.com/420x420?text=No+Data";
-              img.alt = "No avatar data available";
-            }
+            if (img) img.src = "https://via.placeholder.com/420x420?text=No+Data";
           }
         });
 
       } catch (err) {
         attempt++;
-        console.error(`Failed to fetch avatars (attempt ${attempt}):`, err);
         if (attempt > maxRetries) {
-          // After max retries, set placeholders for this chunk only
           chunk.forEach((player) => {
             const img = document.querySelector(`img[data-user-id="${player.id}"]`);
-            if (img) {
-              img.src = "https://via.placeholder.com/420x420?text=Error+Loading";
-              img.alt = "Error loading avatar";
-            }
+            if (img) img.src = "https://via.placeholder.com/420x420?text=Error+Loading";
           });
         } else {
-          // Wait before retrying (exponential backoff)
           await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
         }
       }
     }
 
-    // Add a small delay between chunks to avoid rate limits
     if (i + chunkSize < players.length) {
-      await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
   }
 });
