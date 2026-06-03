@@ -82,3 +82,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
+// Add this at the very bottom of script.js
+window.addPlayer = addPlayer;
