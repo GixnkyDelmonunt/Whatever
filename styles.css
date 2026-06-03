@@ -103,15 +103,15 @@ h1 {
   font-weight: 500;
 }
 
-/* Hidden Secret Admin Panel Modal Styles */
+/* Secret Admin Modal Overlays */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(5px);
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
