@@ -139,32 +139,34 @@ document.addEventListener("DOMContentLoaded", async () => {
   const searchInput = document.getElementById("searchInput");
   if (!grid || !searchInput) return;
 
-  // Modal elements
+  // Modal UI elements
   const avatarModal = document.getElementById("avatarModal");
-  const openModalBtn = document.getElementById("openModalBtn");
   const cancelModalBtn = document.getElementById("cancelModalBtn");
   const submitAvatarBtn = document.getElementById("submitAvatarBtn");
+  const modalPassword = document.getElementById("modalPassword");
   const modalUsername = document.getElementById("modalUsername");
   const modalID = document.getElementById("modalID");
 
-  // Toast notification container
+  // Custom Toast Notification Engine
   const toastContainer = document.createElement("div");
   toastContainer.id = "toast-container";
-  toastContainer.style.position = "fixed";
-  toastContainer.style.bottom = "30px";
-  toastContainer.style.left = "50%";
-  toastContainer.style.transform = "translateX(-50%)";
-  toastContainer.style.display = "flex";
-  toastContainer.style.flexDirection = "column-reverse";
-  toastContainer.style.gap = "10px";
-  toastContainer.style.zIndex = "9999";
-  toastContainer.style.pointerEvents = "none";
+  Object.assign(toastContainer.style, {
+    position: "fixed",
+    bottom: "30px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    display: "flex",
+    flexDirection: "column-reverse",
+    gap: "10px",
+    zIndex: "10005",
+    pointerEvents: "none"
+  });
   document.body.appendChild(toastContainer);
 
   function showNotification(text) {
     const toast = document.createElement("div");
     toast.className = "toast";
-    toast.textContent = `${text}`;
+    toast.textContent = text;
 
     Object.assign(toast.style, {
       background: "rgba(20, 20, 20, 0.95)",
@@ -177,8 +179,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       fontWeight: "500",
       opacity: "0",
       transform: "scale(0.95)",
-      transition: "opacity 0.3s ease, transform 0.3s ease, margin 0.3s ease",
-      marginBottom: "0px",
+      transition: "opacity 0.3s ease, transform 0.3s ease",
       pointerEvents: "auto",
     });
 
@@ -187,30 +188,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     requestAnimationFrame(() => {
       toast.style.opacity = "1";
       toast.style.transform = "scale(1)";
-      toast.style.marginBottom = "0px";
     });
 
     setTimeout(() => {
       toast.style.opacity = "0";
       toast.style.transform = "scale(0.95)";
-      toast.style.marginBottom = "-20px";
       setTimeout(() => toast.remove(), 300);
-    }, 1600);
+    }, 2500);
   }
 
-  // Card Creator Function (Re-usable code snippet)
+  // Card Constructor Function
   function createPlayerCard(player) {
     const card = document.createElement("div");
     card.className = "avatar-card";
     card.setAttribute("data-user-id", player.id);
     card.setAttribute("data-username", player.name.toLowerCase());
 
-    card.addEventListener("click", () => {
+    card.addEventListener("click", (e) => {
+      // Secret Deletion: If holding Alt while clicking an avatar card
+      if (e.altKey) {
+        triggerDeleteFlow(player);
+        return;
+      }
+
       navigator.clipboard.writeText(player.id.toString()).then(() => {
-        showNotification(`UserID ${player.id} copied to clipboard.`);
-      }).catch(err => {
-        console.error("Failed to copy:", err);
-        showNotification("Failed to copy");
+        showNotification(`UserID ${player.id} copied to clipboard! (Alt+Click to delete)`);
       });
     });
 
@@ -227,50 +229,65 @@ document.addEventListener("DOMContentLoaded", async () => {
     card.appendChild(img);
     card.appendChild(name);
     grid.appendChild(card);
-    return img;
   }
 
-  // Dynamic Individual Avatar Fetch Handler
-  async function fetchSingleAvatar(id, imgElement) {
+  // Deletion Request Handler
+  async function triggerDeleteFlow(player) {
+    const password = prompt(`Enter Admin Password to delete "${player.name}":`);
+    if (!password) return;
+
     try {
-      const res = await fetch(`/.netlify/functions/avatars?userIds=${id}`);
-      if (!res.ok) throw new Error();
+      const res = await fetch("/.netlify/functions/avatars", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: player.id, password })
+      });
       const data = await res.json();
-      const match = data.data.find(d => d.targetId == id);
-      if (match && match.imageUrl) {
-        imgElement.crossOrigin = "anonymous";
-        imgElement.src = match.imageUrl;
-        imgElement.alt = `${id}'s avatar`;
+
+      if (res.ok && data.success) {
+        showNotification(`Deleted ${player.name} successfully.`);
+        setTimeout(() => location.reload(), 1000);
       } else {
-        imgElement.src = "https://via.placeholder.com/420x420?text=No+Data";
+        alert(`Error: ${data.error || "Could not delete avatar."}`);
       }
-    } catch {
-      imgElement.src = "https://via.placeholder.com/420x420?text=Error";
+    } catch (err) {
+      showNotification("Failed to connect to server backend.");
     }
   }
 
-  // Step 1: Render default list cards with placeholders
-  players.forEach((player) => {
-    createPlayerCard(player);
-  });
+  // Gather saved data from the global Database store
+  async function loadAllAvatars() {
+    try {
+      const response = await fetch("/.netlify/functions/avatars?action=list");
+      if (response.ok) {
+        const data = await response.json();
+        if (data.customPlayers && data.customPlayers.length > 0) {
+          players = [...players, ...data.customPlayers];
+        }
+      }
+    } catch (e) {
+      console.error("Could not load global custom avatars", e);
+    }
 
-  // Step 2: Search filtering (username only)
-  searchInput.addEventListener("input", () => {
-    const query = searchInput.value.trim().toLowerCase();
-    Array.from(grid.children).forEach((card) => {
-      const username = card.getAttribute("data-username");
-      card.style.display = username.includes(query) ? "" : "none";
-    });
-  });
+    // Render cards across all collected items
+    players.forEach(player => createPlayerCard(player));
+    fetchAvatarsInChunks();
+  }
 
-  // Modal Visibility Interactions
-  openModalBtn.addEventListener("click", () => {
-    avatarModal.classList.add("active");
-    modalUsername.focus();
+  // Secret Hotkey Event: Listen for Ctrl + Q globally
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey && e.key.toLowerCase() === "q") {
+      e.preventDefault(); // Stop standard browser actions if any
+      avatarModal.classList.toggle("active");
+      if (avatarModal.classList.contains("active")) {
+        modalPassword.focus();
+      }
+    }
   });
 
   const closeModal = () => {
     avatarModal.classList.remove("active");
+    modalPassword.value = "";
     modalUsername.value = "";
     modalID.value = "";
   };
@@ -280,83 +297,96 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (e.target === avatarModal) closeModal();
   });
 
-  // Click handler to append a custom user to the collection
+  // Submit profile to server storage logic
   submitAvatarBtn.addEventListener("click", async () => {
+    const passInput = modalPassword.value.trim();
     const nameInput = modalUsername.value.trim();
     const idInput = modalID.value.trim();
 
-    if (!nameInput || !idInput) {
-      showNotification("Please enter both Username and ID.");
+    if (!passInput || !nameInput || !idInput) {
+      showNotification("All entry fields are required.");
       return;
     }
 
     const parsedId = parseInt(idInput, 10);
     if (isNaN(parsedId)) {
-      showNotification("ID must be a numeric value.");
+      showNotification("User ID must be a number.");
       return;
     }
 
-    const newPlayer = { name: nameInput, id: parsedId };
-    
-    // Generate and fetch live data
-    const imgEl = createPlayerCard(newPlayer);
-    closeModal();
-    showNotification(`Added ${nameInput}! Loading avatar...`);
-    
-    await fetchSingleAvatar(parsedId, imgEl);
+    showNotification("Saving avatar globally...");
+
+    try {
+      const response = await fetch("/.netlify/functions/avatars", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: nameInput, id: parsedId, password: passInput })
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        closeModal();
+        showNotification(`Success! ${nameInput} added for all visitors.`);
+        setTimeout(() => location.reload(), 1200);
+      } else {
+        showNotification(`Error: ${result.error || "Failed to save."}`);
+      }
+    } catch (err) {
+      showNotification("Network error updating database repository.");
+    }
   });
 
-  // Step 3: Fetch original avatars in chunks
-  const chunkSize = 25;
-  const maxRetries = 2;
+  // Search filter routing logic
+  searchInput.addEventListener("input", () => {
+    const query = searchInput.value.trim().toLowerCase();
+    Array.from(grid.children).forEach((card) => {
+      const username = card.getAttribute("data-username");
+      card.style.display = username.includes(query) ? "" : "none";
+    });
+  });
 
-  for (let i = 0; i < players.length; i += chunkSize) {
-    const chunk = players.slice(i, i + chunkSize);
-    const userIds = chunk.map(p => p.id).join(",");
+  // Chunks asset fetch controller loops
+  async function fetchAvatarsInChunks() {
+    const chunkSize = 25;
+    const maxRetries = 2;
 
-    let attempt = 0;
-    let success = false;
+    for (let i = 0; i < players.length; i += chunkSize) {
+      const chunk = players.slice(i, i + chunkSize);
+      const userIds = chunk.map(p => p.id).join(",");
+      let attempt = 0;
+      let success = false;
 
-    while (attempt <= maxRetries && !success) {
-      try {
-        const res = await fetch(`/.netlify/functions/avatars?userIds=${userIds}`);
-        if (!res.ok) throw new Error(`API error ${res.status}`);
+      while (attempt <= maxRetries && !success) {
+        try {
+          const res = await fetch(`/.netlify/functions/avatars?userIds=${userIds}`);
+          if (!res.ok) throw new Error();
+          const data = await res.json();
+          success = true;
 
-        const data = await res.json();
-        success = true;
-
-        data.data.forEach((avatar) => {
-          const img = document.querySelector(`img[data-user-id="${avatar.targetId}"]`);
-          if (img) {
-            img.crossOrigin = "anonymous";
-            img.src = avatar.imageUrl || "https://via.placeholder.com/420x420?text=No+Avatar";
-            img.alt = avatar.imageUrl ? `${avatar.targetId}'s avatar` : "No avatar available";
-          }
-        });
-
-        chunk.forEach((player) => {
-          const found = data.data.find(d => d.targetId === player.id);
-          if (!found) {
-            const img = document.querySelector(`img[data-user-id="${player.id}"]`);
-            if (img) img.src = "https://via.placeholder.com/420x420?text=No+Data";
-          }
-        });
-
-      } catch (err) {
-        attempt++;
-        if (attempt > maxRetries) {
-          chunk.forEach((player) => {
-            const img = document.querySelector(`img[data-user-id="${player.id}"]`);
-            if (img) img.src = "https://via.placeholder.com/420x420?text=Error+Loading";
+          data.data.forEach((avatar) => {
+            const img = document.querySelector(`img[data-user-id="${avatar.targetId}"]`);
+            if (img) {
+              img.crossOrigin = "anonymous";
+              img.src = avatar.imageUrl || "https://via.placeholder.com/420x420?text=No+Avatar";
+            }
           });
-        } else {
-          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        } catch {
+          attempt++;
+          if (attempt > maxRetries) {
+            chunk.forEach((p) => {
+              const img = document.querySelector(`img[data-user-id="${p.id}"]`);
+              if (img) img.src = "https://via.placeholder.com/420x420?text=Error";
+            });
+          } else {
+            await new Promise(r => setTimeout(r, 1000 * attempt));
+          }
         }
       }
-    }
-
-    if (i + chunkSize < players.length) {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      if (i + chunkSize < players.length) await new Promise(r => setTimeout(r, 400));
     }
   }
+
+  // Run the initialization loop
+  loadAllAvatars();
 });
