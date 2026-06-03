@@ -308,22 +308,44 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-const LAST_EDITED_TIMESTAMP = "2026-06-02T23:44:00Z"; 
+// --- Automated Live Site Update Timestamp Component ---
+let lastEditedDate = null;
 
-function updateRelativeTime() {
+async function fetchLastDeploymentTime() {
+  try {
+    // Fetches the index.html file headers from the server to read its actual modification time
+    const response = await fetch(window.location.href, { method: 'HEAD', cache: 'no-cache' });
+    const lastModifiedHeader = response.headers.get('Last-Modified');
+    
+    if (lastModifiedHeader) {
+      lastEditedDate = new Date(lastModifiedHeader);
+    } else {
+      // Fallback if header is missing during local preview testing
+      lastEditedDate = new Date();
+    }
+  } catch (error) {
+    console.error("Could not fetch update timestamp:", error);
+    lastEditedDate = new Date();
+  }
+  // Run calculation immediately once time is retrieved
+  calculateRelativeTime();
+}
+
+function calculateRelativeTime() {
   const updateTextElem = document.getElementById("update-text");
-  if (!updateTextElem) return;
+  if (!updateTextElem || !lastEditedDate) return;
 
-  const lastEdited = new Date(LAST_EDITED_TIMESTAMP);
   const now = new Date();
-  const secondsPast = Math.floor((now.getTime() - lastEdited.getTime()) / 1000);
+  // Calculates the difference using precise global Unix offsets (milliseconds)
+  const secondsPast = Math.floor((now.getTime() - lastEditedDate.getTime()) / 1000);
 
-  if (secondsPast < 5) {
+  // Fallback handler if local system clock is slightly ahead of server time
+  if (secondsPast < 1) {
     updateTextElem.textContent = "Updated just now";
     return;
   }
   if (secondsPast < 60) {
-    updateTextElem.textContent = `Updated ${secondsPast} seconds ago`;
+    updateTextElem.textContent = `Updated ${secondsPast} ${secondsPast === 1 ? 'second' : 'seconds'} ago`;
     return;
   }
 
@@ -360,3 +382,11 @@ function updateRelativeTime() {
   const yearsPast = Math.floor(daysPast / 365.25);
   updateTextElem.textContent = `Updated ${yearsPast} ${yearsPast === 1 ? 'year' : 'years'} ago`;
 }
+
+// Initialize the tracking engine cleanly alongside your avatar code execution
+document.addEventListener("DOMContentLoaded", () => {
+  fetchLastDeploymentTime();
+  
+  // Checks and updates the text string every single second for exact ticking precision
+  setInterval(calculateRelativeTime, 1000);
+});
