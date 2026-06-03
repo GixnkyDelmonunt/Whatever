@@ -6,22 +6,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const grid = document.getElementById("avatarGrid");
   const searchInput = document.getElementById("searchInput");
 
-  // 1. Toast Notification Setup
-  const toastContainer = document.createElement("div");
-  toastContainer.id = "toast-container";
-  Object.assign(toastContainer.style, { position: "fixed", bottom: "30px", left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column-reverse", gap: "10px", zIndex: "9999", pointerEvents: "none" });
-  document.body.appendChild(toastContainer);
-
-  function showNotification(text) {
-    const toast = document.createElement("div");
-    toast.textContent = text;
-    Object.assign(toast.style, { background: "rgba(20, 20, 20, 0.95)", color: "#fff", padding: "10px 18px", borderRadius: "10px", border: "1px solid #3f3f3f", fontSize: "0.9rem", opacity: "0", transition: "opacity 0.3s ease", pointerEvents: "auto" });
-    toastContainer.appendChild(toast);
-    requestAnimationFrame(() => toast.style.opacity = "1");
-    setTimeout(() => { toast.style.opacity = "0"; setTimeout(() => toast.remove(), 300); }, 1600);
-  }
-
-  // 2. Fetch from Supabase
+  // 1. Fetch Players from Supabase
   let players = [];
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/players?select=*`, {
@@ -30,46 +15,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     players = await res.json();
   } catch (err) { console.error("DB Load Failed", err); }
 
-  // 3. Render Grid
+  // 2. Render initial grid with loading state
   players.forEach(p => {
     const card = document.createElement("div");
     card.className = "avatar-card";
     card.setAttribute("data-username", p.name.toLowerCase());
-    card.innerHTML = `<img src="https://www.roblox.com/headshot-thumbnail/image?userId=${p.roblox_id}&width=420&height=420&format=png" class="avatar-img"><div class="avatar-name">${p.name}</div>`;
+    card.innerHTML = `<img class="avatar-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" data-user-id="${p.roblox_id}"><div class="avatar-name">${p.name}</div>`;
     
     card.addEventListener("click", () => {
       navigator.clipboard.writeText(p.roblox_id);
-      showNotification(`Copied: ${p.roblox_id}`);
     });
     grid.appendChild(card);
   });
 
-  // 4. Search Bar Logic
-  searchInput.addEventListener("input", (e) => {
-    const query = e.target.value.toLowerCase();
-    Array.from(grid.children).forEach(card => {
-      card.style.display = card.getAttribute("data-username").includes(query) ? "" : "none";
-    });
-  });
-
-  // 5. Ctrl+Q Logic
-  document.addEventListener('keydown', (e) => {
-    if (e.ctrlKey && e.key === 'q') {
-      const modal = document.getElementById('adminModal');
-      modal.style.display = (modal.style.display === 'none') ? 'block' : 'none';
-    }
-  });
+  // 3. Chunked Thumbnail Fetching (using your Netlify function)
+  const chunkSize = 25;
+  for (let i = 0; i < players.length; i += chunkSize) {
+    const chunk = players.slice(i, i + chunkSize);
+    const ids = chunk.map(p => p.roblox_id).join(",");
+    try {
+      const res = await fetch(`/.netlify/functions/avatars?userIds=${ids}`);
+      const data = await res.json();
+      data.data.forEach(avatar => {
+        const img = document.querySelector(`img[data-user-id="${avatar.targetId}"]`);
+        if (img) img.src = avatar.imageUrl;
+      });
+    } catch (e) { console.error("Thumbnail fetch failed", e); }
+  }
 });
-
-// Admin Add Function
-window.addPlayer = async () => {
-  const password = document.getElementById('passInput').value;
-  const name = document.getElementById('nameInput').value;
-  const roblox_id = document.getElementById('idInput').value;
-  const res = await fetch('/.netlify/functions/addPlayer', {
-    method: 'POST',
-    body: JSON.stringify({ password, name, roblox_id })
-  });
-  if (res.ok) { alert('Success!'); location.reload(); }
-  else { alert('Unauthorized or Error'); }
-};
