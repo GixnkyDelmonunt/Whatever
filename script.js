@@ -1,309 +1,67 @@
 // script.js
 
-const players = [
-  { name: "Ninjadhs1", id: 654733209 },
-  { name: "supero1432", id: 1231805530 },
-  { name: "REYHULKPRO9", id: 1496833668 },
-  { name: "drxftvamp", id: 1165250803 },
-  { name: "Khenxus", id: 1272545967 },
-  { name: "P3rr0Pr1m0", id: 7575030099 },
-  { name: "IRALI999", id: 1388738069 },
-  { name: "XiDuxrentusxX", id: 3654730712 },
-  { name: "HEERNAANNN", id: 9114255863 },
-  { name: "lefblox_666", id: 1528223828 },
-  { name: "Josehxz_q", id: 9560943012 },
-  { name: "im_kashinn", id: 5341059980 },
-  { name: "yeah3415", id: 2013541072 },
-  { name: "daxwerDelmonunt", id: 1371366812 },
-  { name: "9kdeadsouls", id: 1690242112 },
-  { name: "KungFuPandaKrew", id: 7531100443 },
-  { name: "0nixis", id: 1177615098 },
-  { name: "rankrko", id: 8733019128 },
-  { name: "y3rr9", id: 1489214711 },
-  { name: "Alxxzz1", id: 8364173166 },
-  { name: "klaser22", id: 272027870 },
-  { name: "gareyco_107", id: 1022492466 },
-  { name: "jeanxsnn", id: 768301086 },
-  { name: "xxgran722xx", id: 1818441922 },
-  { name: "Triippyzz", id: 138219381 },
-  { name: "Ovlle", id: 2253595195 },
-  { name: "7X_D2", id: 4558287823 },
-  { name: "dxrftblud", id: 7877661694 },
-  { name: "Progam3rlons", id: 2546465432 },
-  { name: "lasardina4328sardina", id: 1322652918 },
-  { name: "ibx18k", id: 5549459192 },
-  { name: "Yarapowerr", id: 189720070 },
-  { name: "AitaOnTop", id: 4628543491 },
-  { name: "dsadadad804", id: 5605162072 },
-  { name: "Iac3ys", id: 375935386 },
-  { name: "BlessedSacramentt", id: 5321240257 },
-  { name: "07suspect", id: 1139927044 },
-  { name: "Bxk7x6", id: 5395353736 },
-  { name: "gareyco_1O7", id: 4407827196 },
-  { name: "germaprogamer22", id: 2237407693 },
-  { name: "XlDuxrentusxX", id: 4010247893 },
-  { name: "arledis_demente", id: 1225837960 },
-  { name: "Dxrkners", id: 4593790536 },
-  { name: "kevin_roblox323", id: 538433129 },
-  { name: "Not_MossedYT", id: 1965757720 },
-  { name: "lequl841", id: 3275144930 },
-  { name: "abrahamak_477", id: 2208207168 },
-  { name: "NocturnalDisorder", id: 3252661184 },
-  { name: "NobodyIsAware", id: 3547441589 },
-  { name: "letmepumpp", id: 735394702 },
-  { name: "andresceva111", id: 982314062 },
-  { name: "BlessedSacred", id: 3859780537 },
-  { name: "bxrxlot", id: 12256369 },
-  { name: "Aicetis", id: 1229672957 },
-  { name: "crater15101", id: 1814557802 },
-  { name: "Dogboyshvy", id: 4228365997 },
-  { name: "GetGian", id: 2331484141 },
-  { name: "MaxwellSekkmotss", id: 4748841426 },
-  { name: "DartherShadowss", id: 3851759664 },
-  { name: "Rxbonn", id: 7248042606 },
-  { name: "McBryan136", id: 1296199736 },
-  { name: "JonnyLawraceSensei", id: 1906882872 },
-  { name: "SyntxxWcu", id: 4484725234 },
-  { name: "KingOfTheHellxO", id: 4266728936 },
-  { name: "Bludoverdxrk", id: 3373871256 },
-  { name: "GixnkyDelmxnunt", id: 4437701277 },
-  { name: "DaxwerSekkmotss", id: 3771135418 },
-  { name: "vKrxmpus", id: 4179840177 },
-  { name: "DawxerSekhmotss", id: 7451079550 },
-  { name: "iiShaxxkz", id: 5852447025 },
-  { name: "mmkyedcr", id: 490814342 },
-  { name: "NothingToRemind", id: 3694688783 },
-  { name: "1qALATORRE", id: 1397707621 },
-  { name: "JESUS_ALATORRE17", id: 7662297431 },
-  { name: "JESUS_ALATORREE2OO7", id: 7658664037 },
-  { name: "JESUS_ALAT0RRE2006", id: 4674599896 },
-  { name: "Deepsnakerequest", id: 7617279913 },
-  { name: "HOKXXEASON", id: 4774480698 },
-  { name: "D4ARKLIFEREAL", id: 1937570720 },
-  { name: "1xBozz", id: 5687168229 },
-  { name: "drxftbud", id: 7451122485 },
-  { name: "xlTayler90k", id: 948717806 },
-  { name: "M3NTELOK4", id: 1613189299 },
-  { name: "maricielo20060", id: 1449681167 },
-  { name: "elgordais", id: 2275606575 },
-  { name: "Dahunius", id: 3956858721 },
-  { name: "bompii1", id: 7182042886 },
-  { name: "ElDiegoOficial2010", id: 3115676240 },
-  { name: "you235712", id: 2400090131 },
-  { name: "evreynt", id: 1726375474 },
-  { name: "manucraftero132", id: 1584587001 },
-  { name: "slazed", id: 64705290 },
-  { name: "Xxgran722X", id: 6015219503 },
-  { name: "xsircz", id: 2936712226 },
-  { name: "rnxx1s", id: 7418861832 },
-  { name: "akinclears", id: 2888051148 },
-  { name: "alberthj666", id: 2692945673 },
-  { name: "DIEGO25PLAY", id: 1509731235 },
-  { name: "davicho54", id: 289634129 },
-  { name: "germprogamer22", id: 7451546489 },
-  { name: "clearlyc0dy_0mg", id: 4786769442 },
-  { name: "masterindiarocks", id: 360576345 },
-  { name: "j4m4l1fe", id: 1005735583 },
-  { name: "alsil", id: 160216019 },
-  { name: "Emperize", id: 161678574 },
-  { name: "ericktttttyyy", id: 4808155603 },
-  { name: "entendree", id: 176683308 },
-  { name: "chonsarro1", id: 921567634 },
-  { name: "3k_waves", id: 2597959519 },
-  { name: "elcraca273", id: 1446591728 },
-  { name: "juanranciado", id: 4230649998 },
-  { name: "xXxEfeTheKingxXx", id: 863090273 },
-  { name: "xBlood_s0uls", id: 2301586592 },
-  { name: "xBIoodLord", id: 1548524890 },
-  { name: "H3LLCR3STT", id: 5499277636 },
-  { name: "SoulMercy", id: 348750127 },
-  { name: "Logans266", id: 1310621055 },
-  { name: "GexGore", id: 4255779387 },
-  { name: "ESP4C10", id: 4413217813 },
-  { name: "Get_Mined/enoblog", id: 3725891679 },
-  { name: "Andrew19_29", id: 1860874824 },
-  { name: "zMr_Potato", id: 1674928150 },
-  { name: "IxsDev", id: 1342114927 },
-  { name: "Oscxrxxz", id: 5109308571 },
-  { name: "Esteba5378", id: 1693365751 },
-  { name: "UN55029572", id: 409772658 },
-  { name: "SombreFeelings", id: 310085956 },
-  { name: "T4RGA", id: 338436976 },
-  { name: "TehMiq_Alt", id: 5341162058 },
-  { name: "shiva2d4rk", id: 893718308 },
-  { name: "jalenhurts", id: 8263614717 }
-];
+// 1. Initial configuration
+const SUPABASE_URL = 'https://wfmojulwehfudlmqehgg.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmbW9qdWx3ZWhmdWRsbXFlaGdnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NDE1OTIsImV4cCI6MjA5NjAxNzU5Mn0.W-lQKy8_R0ygkiJTBhZd03bMkfJW6g0YJ4ELdpLMX-Y';
 
-document.addEventListener("DOMContentLoaded", async () => {
-  const grid = document.getElementById("avatarGrid");
-  const searchInput = document.getElementById("searchInput");
-  if (!grid || !searchInput) return;
-
-  // Toast notification container
-  const toastContainer = document.createElement("div");
-  toastContainer.id = "toast-container";
-  toastContainer.style.position = "fixed";
-  toastContainer.style.bottom = "30px";
-  toastContainer.style.left = "50%";
-  toastContainer.style.transform = "translateX(-50%)";
-  toastContainer.style.display = "flex";
-  toastContainer.style.flexDirection = "column-reverse";
-  toastContainer.style.gap = "10px";
-  toastContainer.style.zIndex = "9999";
-  toastContainer.style.pointerEvents = "none";
-  document.body.appendChild(toastContainer);
-
-  function showNotification(text) {
-    const toast = document.createElement("div");
-    toast.className = "toast";
-    toast.textContent = `${text}`;
-
-    Object.assign(toast.style, {
-      background: "rgba(20, 20, 20, 0.95)",
-      color: "#fff",
-      padding: "10px 18px",
-      borderRadius: "10px",
-      border: "1px solid #3f3f3f",
-      boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
-      fontSize: "0.9rem",
-      fontWeight: "500",
-      opacity: "0",
-      transform: "scale(0.95)",
-      transition: "opacity 0.3s ease, transform 0.3s ease, margin 0.3s ease",
-      marginBottom: "0px",
-      pointerEvents: "auto",
+// 2. Logic to fetch players from Supabase and render the grid
+async function loadPlayers() {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/players?select=*`, {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      }
     });
-
-    toastContainer.appendChild(toast);
-
-    requestAnimationFrame(() => {
-      toast.style.opacity = "1";
-      toast.style.transform = "scale(1)";
-      toast.style.marginBottom = "0px";
-    });
-
-    setTimeout(() => {
-      toast.style.opacity = "0";
-      toast.style.transform = "scale(0.95)";
-      toast.style.marginBottom = "-20px";
-      setTimeout(() => toast.remove(), 300);
-    }, 1600);
+    const players = await response.json();
+    renderAvatarGrid(players);
+  } catch (err) {
+    console.error("Failed to load players:", err);
   }
+}
 
-  // Step 1: Render cards with placeholders
-  players.forEach((player) => {
-    const card = document.createElement("div");
-    card.className = "avatar-card";
-    card.setAttribute("data-user-id", player.id);
-    card.setAttribute("data-username", player.name.toLowerCase());
-
-    card.addEventListener("click", () => {
-      navigator.clipboard.writeText(player.id.toString()).then(() => {
-        showNotification(`UserID ${player.id} copied to clipboard.`);
-      }).catch(err => {
-        console.error("Failed to copy:", err);
-        showNotification("Failed to copy");
-      });
-    });
-
-    const img = document.createElement("img");
-    img.className = "avatar-img";
-    img.src = "https://via.placeholder.com/420x420?text=Loading";
-    img.alt = "Loading avatar";
-    img.setAttribute("data-user-id", player.id);
-
-    const name = document.createElement("div");
-    name.className = "avatar-name";
-    name.textContent = player.name;
-
-    card.appendChild(img);
-    card.appendChild(name);
+// 3. Simple render function (adjust this to match your existing HTML structure)
+function renderAvatarGrid(players) {
+  const grid = document.getElementById('avatarGrid');
+  grid.innerHTML = ''; // Clear existing
+  players.forEach(player => {
+    const card = document.createElement('div');
+    card.className = 'avatar-card';
+    card.innerHTML = `
+      <img src="https://www.roblox.com/headshot-thumbnail/image?userId=${player.roblox_id}&width=420&height=420&format=png" class="avatar-img">
+      <div class="avatar-name">${player.name}</div>
+    `;
     grid.appendChild(card);
   });
+}
 
-  // Step 2: Search filtering (username only)
-  searchInput.addEventListener("input", () => {
-    const query = searchInput.value.trim().toLowerCase();
-    Array.from(grid.children).forEach((card) => {
-      const username = card.getAttribute("data-username");
-      card.style.display = username.includes(query) ? "" : "none";
-    });
-  });
-
-  // Step 3: Fetch avatars in chunks with improved error handling, retries, and delays
-  const chunkSize = 25; // Reduced from 50 for better reliability
-  const maxRetries = 2; // Retry failed fetches up to 2 times
-
-  for (let i = 0; i < players.length; i += chunkSize) {
-    const chunk = players.slice(i, i + chunkSize);
-    const userIds = chunk.map(p => p.id).join(",");
-
-    let attempt = 0;
-    let success = false;
-
-    while (attempt <= maxRetries && !success) {
-      try {
-        const res = await fetch(`/.netlify/functions/avatars?userIds=${userIds}`);
-        if (!res.ok) throw new Error(`API error ${res.status}`);
-
-        const data = await res.json();
-        success = true;
-
-        // Update images for this chunk only
-        data.data.forEach((avatar) => {
-          const img = document.querySelector(`img[data-user-id="${avatar.targetId}"]`);
-          if (img) {
-            img.crossOrigin = "anonymous";
-            img.src = avatar.imageUrl || "https://via.placeholder.com/420x420?text=No+Avatar";
-            img.alt = avatar.imageUrl ? `${avatar.targetId}'s avatar` : "No avatar available";
-            img.onerror = () => {
-              console.warn("Image failed to load:", avatar.imageUrl);
-              img.src = "https://via.placeholder.com/420x420?text=Failed+to+Load";
-              img.alt = "Avatar failed to load";
-              // Optional: Retry just this image after a delay
-              setTimeout(() => {
-                if (avatar.imageUrl) img.src = avatar.imageUrl;
-              }, 2000); // Retry after 2s
-            };
-          }
-        });
-
-        // Handle missing avatars for this chunk
-        chunk.forEach((player) => {
-          const found = data.data.find(d => d.targetId === player.id);
-          if (!found) {
-            console.warn(`Missing avatar for: ${player.name} (ID: ${player.id})`);
-            // Set a specific placeholder for missing ones
-            const img = document.querySelector(`img[data-user-id="${player.id}"]`);
-            if (img) {
-              img.src = "https://via.placeholder.com/420x420?text=No+Data";
-              img.alt = "No avatar data available";
-            }
-          }
-        });
-
-      } catch (err) {
-        attempt++;
-        console.error(`Failed to fetch avatars (attempt ${attempt}):`, err);
-        if (attempt > maxRetries) {
-          // After max retries, set placeholders for this chunk only
-          chunk.forEach((player) => {
-            const img = document.querySelector(`img[data-user-id="${player.id}"]`);
-            if (img) {
-              img.src = "https://via.placeholder.com/420x420?text=Error+Loading";
-              img.alt = "Error loading avatar";
-            }
-          });
-        } else {
-          // Wait before retrying (exponential backoff)
-          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
-        }
-      }
-    }
-
-    // Add a small delay between chunks to avoid rate limits
-    if (i + chunkSize < players.length) {
-      await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay
-    }
+// 4. Ctrl + Q to toggle the Modal
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.key === 'q') {
+    const modal = document.getElementById('adminModal');
+    modal.style.display = (modal.style.display === 'none' || modal.style.display === '') ? 'block' : 'none';
   }
 });
+
+// 5. Function to add a new player via your Netlify function
+async function addPlayer() {
+  const password = document.getElementById('passInput').value;
+  const name = document.getElementById('nameInput').value;
+  const roblox_id = document.getElementById('idInput').value;
+
+  const res = await fetch('/.netlify/functions/addPlayer', {
+    method: 'POST',
+    body: JSON.stringify({ password, name, roblox_id })
+  });
+
+  if (res.ok) {
+    alert('Added successfully! Refresh the page to see the new avatar.');
+  } else {
+    alert('Failed: Check your password.');
+  }
+}
+
+// Run on load
+loadPlayers();
