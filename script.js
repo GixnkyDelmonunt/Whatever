@@ -84,10 +84,18 @@ window.addPlayer = async () => {
   const password = document.getElementById('passInput').value;
   const name = document.getElementById('nameInput').value;
   const roblox_id = document.getElementById('idInput').value;
+  
   const res = await fetch('/.netlify/functions/addPlayer', {
     method: 'POST',
     body: JSON.stringify({ password, name, roblox_id })
   });
-  if (res.ok) { alert('Success!'); location.reload(); }
-  else { alert('Unauthorized or Error'); }
+
+  if (res.status === 409) {
+    alert('Error: This ID already exists in the hitlist.');
+  } else if (res.ok) {
+    alert('Success!');
+    location.reload();
+  } else {
+    alert('Unauthorized or Error');
+  }
 };
