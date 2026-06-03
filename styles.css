@@ -87,8 +87,8 @@ h1 {
 }
 
 #searchInput:focus {
-  border-color: #4caf50;
-  box-shadow: 0 0 10px #4caf50aa inset;
+  border-color: #ffffff; /* Changed from #4caf50 */
+  box-shadow: 0 0 10px #ffffffaa inset; /* Changed from #4caf50aa */
 }
 
 #searchInput:focus::placeholder {
