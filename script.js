@@ -55,10 +55,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // 5. Ctrl+Q Logic
+// 5. Ctrl+Q Logic
   document.addEventListener('keydown', (e) => {
     if (e.ctrlKey && e.key === 'q') {
-      adminModal.style.display = (adminModal.style.display === 'none' || adminModal.style.display === '') ? 'block' : 'none';
+      const modal = document.getElementById("adminModal");
+      modal.style.display = (modal.style.display === 'none' || modal.style.display === '') ? 'flex' : 'none';
     }
   });
 
