@@ -137,10 +137,11 @@ h1 {
   box-sizing: border-box;
 }
 
+/* Update this in styles.css */
 .modal-content input:focus {
-  border-color: #4caf50;
+  border-color: #ffffff; /* Changed from #4caf50 */
   outline: none;
-  box-shadow: 0 0 8px #4caf5044;
+  box-shadow: 0 0 8px #ffffff44; /* Changed from #4caf5044 */
 }
 
 /* Modern Button */
